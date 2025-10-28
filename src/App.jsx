@@ -14,7 +14,12 @@ import CollegeRepApp from './pages/collegeRep/CollegeRepApp'
 
 const AppRoutes = () => {
   const { user, loading } = useAuth()
-  const homePath = user?.role === 'representative' ? '/collegerep' : '/dashboard'
+  const roleHomePaths = {
+    student: '/dashboard',
+    college_admin: '/collegeadmin',
+    college_rep: '/collegerep'
+  }
+  const homePath = user?.homePath ?? roleHomePaths[user?.role] ?? '/dashboard'
 
   if (loading) {
     return <FullPageLoader message="Preparing your experience..." />
@@ -29,16 +34,25 @@ const AppRoutes = () => {
       <Route
         path="/dashboard/*"
         element={user
-          ? user.role === 'representative'
-            ? <Navigate to="/collegerep" replace />
-            : <Dashboard />
+          ? user.role === 'student'
+            ? <Dashboard />
+            : <Navigate to={homePath} replace />
           : <Navigate to="/login" replace />}
       />
-      <Route path="/collegeadmin/*" element={<CollegeAdminApp />} />
+      <Route
+        path="/collegeadmin/*"
+        element={user
+          ? user.role === 'college_admin'
+            ? <CollegeAdminApp />
+            : <Navigate to={homePath} replace />
+          : <Navigate to="/login" replace />}
+      />
       <Route
         path="/collegerep/*"
         element={user
-          ? <CollegeRepApp />
+          ? user.role === 'college_rep'
+            ? <CollegeRepApp />
+            : <Navigate to={homePath} replace />
           : <Navigate to="/login" replace />}
       />
       <Route path="*" element={<Navigate to={user ? homePath : '/login'} replace />} />

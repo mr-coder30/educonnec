@@ -3,13 +3,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import Icon from '../components/common/Icon'
 
+const roleHomePaths = {
+  student: '/dashboard',
+  college_admin: '/collegeadmin',
+  college_rep: '/collegerep'
+}
+
 const Login = () => {
-  const { login } = useAuth()
+  const { signIn } = useAuth()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -18,26 +26,29 @@ const Login = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const isAdmin = formData.email.trim().toLowerCase() === 'admin@college.edu' && formData.password === 'Admin@123'
-    const userData = isAdmin
-      ? {
-          id: 'admin-1',
-          name: 'Aurora Admin',
-          email: formData.email.trim(),
-          profilePicture: '/default-avatar.png',
-          role: 'admin'
-        }
-      : {
-          id: 1,
-          name: 'John Doe',
-          email: formData.email.trim(),
-          profilePicture: '/default-avatar.png',
-          role: 'student'
-        }
-    login(userData)
-    navigate(isAdmin ? '/admin' : '/dashboard')
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const { user } = await signIn({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
+      })
+
+      if (user?.homePath) {
+        navigate(user.homePath, { replace: true })
+        return
+      }
+
+      const fallbackPath = roleHomePaths[user?.role] ?? '/dashboard'
+      navigate(fallbackPath, { replace: true })
+    } catch (err) {
+      setError(err.message ?? 'Unable to sign in. Please check your credentials and try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -124,11 +135,19 @@ const Login = () => {
                 </div>
 
                 <div className="space-y-4">
+                  {error && (
+                    <p className="text-sm font-semibold text-red-500 text-center">
+                      {error}
+                    </p>
+                  )}
                   <button
                     type="submit"
-                    className="w-full rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-transform hover:-translate-y-0.5"
+                    disabled={isSubmitting}
+                    className={`w-full rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-purple-500/30 transition-transform ${
+                      isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-purple-500/50 hover:-translate-y-0.5'
+                    }`}
                   >
-                    Sign in
+                    {isSubmitting ? 'Signing in...' : 'Sign in'}
                   </button>
 
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-600 dark:text-gray-400">

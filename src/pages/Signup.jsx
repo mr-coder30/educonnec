@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { Link, useNavigate } from 'react-router-dom'
 import Icon from '../components/common/Icon'
+import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabaseClient'
 
 const Signup = () => {
-  const { login } = useAuth()
+  const navigate = useNavigate()
+  const { signUp, refreshUser } = useAuth()
   const initialFormState = useMemo(() => ({
     name: '',
     username: '',
@@ -26,6 +28,22 @@ const Signup = () => {
   }), [])
   const [formData, setFormData] = useState(initialFormState)
   const [selectedRole, setSelectedRole] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  const roleToSupabaseMap = useMemo(() => ({
+    student: 'student',
+    college: 'college_admin',
+    representative: 'college_rep'
+  }), [])
+
+  const roleTableMap = useMemo(() => ({
+    student: 'student_signups',
+    college: 'college_signups',
+    representative: 'college_representative_signups'
+  }), [])
+
+  const STORAGE_BUCKET = 'profiles'
 
   const studyOptions = useMemo(() => (
     ['B.Tech', 'M.Tech', 'PhD', 'B.Sc', 'M.Sc', 'B.A', 'M.A', 'Other']
@@ -59,12 +77,145 @@ const Signup = () => {
     }
   ]), [])
 
+  const roleRedirects = useMemo(() => ({
+    student: '/dashboard',
+    college_admin: '/collegeadmin',
+    college_rep: '/collegerep'
+  }), [])
+
+  const getEmailForRole = (roleKey, data) => (
+    roleKey === 'college' ? data.contactEmail : data.email
+  )
+
+  const buildMetadataPayload = (roleKey, data) => {
+    if (roleKey === 'student') {
+      return {
+        full_name: data.name,
+        username: data.username,
+        studying: data.studying,
+        college: data.college,
+        bio: data.bio
+      }
+    }
+
+    if (roleKey === 'college') {
+      return {
+        institution_name: data.institutionName,
+        contact_email: data.contactEmail,
+        website: data.website,
+        description: data.description,
+        location: data.location
+      }
+    }
+
+    return {
+      full_name: data.name,
+      designation: data.designation,
+      contact_email: data.email,
+      phone: data.phone,
+      college: data.college,
+      bio: data.bio
+    }
+  }
+
+  const buildProfileDataPayload = (roleKey, data, mediaUrl = null) => {
+    if (roleKey === 'student') {
+      return {
+        full_name: data.name,
+        college: data.college,
+        avatar_url: mediaUrl
+      }
+    }
+
+    if (roleKey === 'college') {
+      return {
+        full_name: data.institutionName,
+        college: data.institutionName,
+        avatar_url: mediaUrl
+      }
+    }
+
+    return {
+      full_name: data.name,
+      college: data.college,
+      phone: data.phone,
+      avatar_url: mediaUrl
+    }
+  }
+
+  const buildTablePayload = (roleKey, email, data, mediaUrl = null) => {
+    if (roleKey === 'student') {
+      return {
+        full_name: data.name,
+        username: data.username,
+        email,
+        password_hash: 'supabase_managed',
+        studying: data.studying,
+        college: data.college,
+        bio: data.bio || null,
+        profile_picture_url: mediaUrl
+      }
+    }
+
+    if (roleKey === 'college') {
+      return {
+        institution_name: data.institutionName,
+        contact_email: email,
+        password_hash: 'supabase_managed',
+        website: data.website || null,
+        description: data.description || null,
+        location: data.location,
+        logo_url: mediaUrl
+      }
+    }
+
+    return {
+      full_name: data.name,
+      designation: data.designation,
+      email,
+      password_hash: 'supabase_managed',
+      phone: data.phone,
+      college: data.college,
+      bio: data.bio || null,
+      profile_picture_url: mediaUrl
+    }
+  }
+
+  const uploadMedia = async (file, roleKey) => {
+    if (!file) return null
+
+    try {
+      const extension = file.name?.split('.').pop() || 'jpg'
+      const uniqueSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      const filePath = `${roleKey}/${uniqueSuffix}.${extension}`
+
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(filePath, file, { cacheControl: '3600', upsert: false })
+
+      if (uploadError) {
+        console.error('Media upload failed', uploadError)
+        return null
+      }
+
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath)
+      return data?.publicUrl ?? null
+    } catch (err) {
+      console.error('Media upload threw an unexpected error', err)
+      return null
+    }
+  }
+
   const handleRoleSelect = (role) => {
+    setError(null)
     setSelectedRole(role)
     setFormData({ ...initialFormState })
   }
 
   const handleRoleReset = () => {
+    setError(null)
     setSelectedRole('')
     setFormData({ ...initialFormState })
   }
@@ -544,74 +695,88 @@ const Signup = () => {
     return null
   }
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target
+  const handleChange = (event) => {
+    const { name, value, files } = event.target
+    setError(null)
+
     if (files) {
       setFormData(prev => ({ ...prev, [name]: files.length ? files[0] : null }))
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }))
+      return
     }
+
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (event) => {
+    event.preventDefault()
 
     if (!selectedRole) {
-      alert('Please choose a category before continuing.')
+      setError('Please choose a category before continuing.')
+      return
+    }
+
+    const supabaseRole = roleToSupabaseMap[selectedRole]
+    if (!supabaseRole) {
+      setError('Invalid role selection. Please choose a valid option.')
       return
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!")
+      setError("Passwords don't match. Please re-enter them.")
       return
     }
 
-    let userData = {
-      id: Date.now(),
-      role: selectedRole
+    const email = getEmailForRole(selectedRole, formData)?.trim().toLowerCase()
+    if (!email) {
+      setError('A valid email address is required.')
+      return
     }
 
-    if (selectedRole === 'student') {
-      userData = {
-        ...userData,
-        name: formData.name,
-        username: formData.username,
-        email: formData.email,
-        studying: formData.studying,
-        college: formData.college,
-        bio: formData.bio,
-        profilePicture: formData.profilePicture
-          ? URL.createObjectURL(formData.profilePicture)
-          : '/default-avatar.png'
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const mediaFile = selectedRole === 'college' ? formData.logo : formData.profilePicture
+      const mediaUrl = await uploadMedia(mediaFile, selectedRole)
+
+      const metadataPayload = buildMetadataPayload(selectedRole, formData)
+      const profileDataPayload = buildProfileDataPayload(selectedRole, formData, mediaUrl)
+
+      const signUpResult = await signUp({
+        email,
+        password: formData.password,
+        role: supabaseRole,
+        metadata: metadataPayload,
+        profileData: profileDataPayload
+      })
+
+      const tableName = roleTableMap[selectedRole]
+      if (tableName) {
+        const tablePayload = buildTablePayload(selectedRole, email, formData, mediaUrl)
+        const { error: tableError } = await supabase.from(tableName).insert(tablePayload)
+        if (tableError) {
+          throw tableError
+        }
       }
-    } else if (selectedRole === 'college') {
-      userData = {
-        ...userData,
-        name: formData.institutionName,
-        email: formData.contactEmail,
-        website: formData.website,
-        description: formData.description,
-        location: formData.location,
-        logo: formData.logo ? URL.createObjectURL(formData.logo) : '/default-avatar.png',
-      };
-    } else if (selectedRole === 'representative') {
-      userData = {
-        ...userData,
-        name: formData.name,
-        designation: formData.designation,
-        email: formData.email,
-        phone: formData.phone,
-        college: formData.college,
-        bio: formData.bio,
-        profilePicture: formData.profilePicture
-          ? URL.createObjectURL(formData.profilePicture)
-          : '/default-avatar.png',
-      };
-    }
 
-    login(userData)
-    setFormData(initialFormState)
-    setSelectedRole('')
+      const refreshedUser = await refreshUser()
+
+      const emailConfirmed = Boolean(signUpResult.session || signUpResult.user?.email_confirmed_at)
+      if (!emailConfirmed) {
+        navigate('/confirm-email', { replace: true })
+      } else {
+        const targetPath = refreshedUser?.homePath ?? roleRedirects[supabaseRole] ?? '/dashboard'
+        navigate(targetPath, { replace: true })
+      }
+
+      setFormData({ ...initialFormState })
+      setSelectedRole('')
+    } catch (err) {
+      console.error('Signup failed', err)
+      setError(err.message ?? 'Signup failed. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -710,12 +875,21 @@ const Signup = () => {
                     {renderRoleSpecificFields()}
 
                     <div className="space-y-4">
+                      {error && (
+                        <p className="text-sm font-semibold text-red-500 text-center">
+                          {error}
+                        </p>
+                      )}
                       <button
                         type="submit"
-                        className="w-full rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-transform hover:-translate-y-0.5"
-                        disabled={!selectedRole}
+                        disabled={!selectedRole || isSubmitting}
+                        className={`w-full rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-purple-500/30 transition-transform ${
+                          !selectedRole || isSubmitting
+                            ? 'opacity-60 cursor-not-allowed'
+                            : 'hover:shadow-purple-500/50 hover:-translate-y-0.5'
+                        }`}
                       >
-                        Create account
+                        {isSubmitting ? 'Creating account…' : 'Create account'}
                       </button>
 
                       <div className="text-center text-sm text-gray-500 sm:text-gray-600 dark:text-gray-400">

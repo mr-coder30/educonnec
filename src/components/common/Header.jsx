@@ -160,7 +160,7 @@ const Header = () => {
                     {user?.name}
                   </span>
                   <span className="block text-[11px] uppercase tracking-[0.22em] text-blue-500 dark:text-blue-300">
-                    Creator
+                    {user?.role?.replace('_', ' ') ?? 'Member'}
                   </span>
                 </div>
               </button>
