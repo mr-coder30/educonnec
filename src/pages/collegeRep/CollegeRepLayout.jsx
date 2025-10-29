@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import Icon from '../../components/common/Icon'
@@ -80,6 +80,10 @@ const CollegeRepLayout = () => {
     () => notifications.filter((item) => !item.read).length,
     [notifications]
   )
+
+  useEffect(() => {
+    setIsQuickOpen(false)
+  }, [location.pathname])
 
   return (
     <div className="relative flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
@@ -204,11 +208,8 @@ const CollegeRepLayout = () => {
             >
               <Icon name={isDark ? 'sun' : 'moon'} className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-3 py-2 text-left shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
-              <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
-                <img src={profile.avatar || '/default-avatar.png'} alt={profile.name} className="h-full w-full object-cover" />
-              </span>
-              <span className="hidden text-sm font-semibold text-slate-700 dark:text-slate-100 sm:inline">{profile.name}</span>
+            <div className="hidden items-center rounded-2xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200 sm:flex">
+              {profile.name}
             </div>
           </div>
         </header>
@@ -223,26 +224,26 @@ const CollegeRepLayout = () => {
           )}
           <button
             type="button"
-            onClick={() => setIsQuickOpen((prev) => !prev)}
+            onClick={() => setIsQuickOpen((previous) => !previous)}
             className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-xl shadow-emerald-500/30"
+            aria-label={isQuickOpen ? 'Close quick actions' : 'Open quick actions'}
           >
-            <Icon name="plus" className="h-7 w-7" />
+            <Icon name={isQuickOpen ? 'modalClose' : 'plus'} className="h-7 w-7" />
           </button>
         </div>
 
-        <div className="fixed bottom-5 right-5 z-30 lg:hidden">
+        <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-3 lg:hidden">
+          {isQuickOpen && (
+            <QuickActionMenu onClose={() => setIsQuickOpen(false)} />
+          )}
           <button
             type="button"
-            onClick={() => setIsQuickOpen((prev) => !prev)}
+            onClick={() => setIsQuickOpen((previous) => !previous)}
             className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-xl shadow-emerald-500/40"
+            aria-label={isQuickOpen ? 'Close quick actions' : 'Open quick actions'}
           >
             <Icon name={isQuickOpen ? 'modalClose' : 'plus'} className="h-6 w-6" />
           </button>
-          {isQuickOpen && (
-            <div className="mt-3">
-              <QuickActionMenu onClose={() => setIsQuickOpen(false)} />
-            </div>
-          )}
         </div>
       </div>
 

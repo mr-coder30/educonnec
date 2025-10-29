@@ -19,7 +19,8 @@ const AppRoutes = () => {
     college_admin: '/collegeadmin',
     college_rep: '/collegerep'
   }
-  const homePath = user?.homePath ?? roleHomePaths[user?.role] ?? '/dashboard'
+  // Default to login for unauthenticated users, otherwise use role-specific home
+  const homePath = user ? (user.homePath || roleHomePaths[user.role] || '/dashboard') : '/login'
 
   if (loading) {
     return <FullPageLoader message="Preparing your experience..." />
@@ -27,7 +28,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={user ? homePath : '/login'} replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={user ? <Navigate to={homePath} replace /> : <Login />} />
       <Route path="/signup" element={user ? <Navigate to={homePath} replace /> : <Signup />} />
       <Route path="/confirm-email" element={<ConfirmEmail />} />

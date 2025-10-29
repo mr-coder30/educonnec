@@ -1,0 +1,30 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/static/:path*",
+      "destination": "/static/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard"
+    },
+    {
+      "source": "/collegeadmin",
+      "destination": "/collegeadmin"
+    },
+    {
+      "source": "/collegerep",
+      "destination": "/collegerep"
+    }
+  ]
+}

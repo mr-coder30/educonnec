@@ -38,13 +38,13 @@ const CollegeAdminOverview = () => {
   const { profile, stats, upcomingEvents, activeInteractionsSummary } = useCollegeAdminData()
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8">
-      <section className="relative overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/95 p-6 shadow-lg shadow-blue-500/10 dark:border-slate-800/70 dark:bg-slate-900/80 sm:p-8">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-blue-50 via-white to-purple-50 opacity-70 dark:from-slate-950/60 dark:via-slate-950/40 dark:to-slate-900/60" aria-hidden="true"></div>
-        <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 md:gap-8">
+      <section className="relative overflow-hidden rounded-[36px] border border-blue-100/70 bg-white/85 p-6 shadow-[0_32px_70px_-40px_rgba(59,130,246,0.55)] backdrop-blur-md dark:border-slate-800/70 dark:bg-slate-900/80 sm:p-8">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-blue-50/70 via-white/40 to-purple-100/60 dark:from-slate-950/60 dark:via-slate-950/30 dark:to-slate-900/60" aria-hidden="true"></div>
+        <div className="relative grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(240px,300px)] lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-5">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-2xl border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-blue-600 dark:border-blue-600/40 dark:bg-blue-900/40 dark:text-blue-200">Admin</span>
+              <span className="rounded-2xl border border-blue-200/70 bg-blue-50/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-blue-600 shadow-[0_10px_25px_-20px_rgba(59,130,246,0.8)] dark:border-blue-600/40 dark:bg-blue-900/40 dark:text-blue-200">Admin</span>
               <p className="text-sm font-semibold text-blue-500 dark:text-blue-300">Welcome back, {profile.adminName} 👋</p>
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -58,7 +58,7 @@ const CollegeAdminOverview = () => {
                 <button
                   key={action.id}
                   type="button"
-                  className={`group flex items-center justify-between gap-3 rounded-3xl border border-transparent bg-gradient-to-r ${action.gradient} px-5 py-4 text-left text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5`}
+                  className={`group flex items-center justify-between gap-3 rounded-3xl border border-transparent bg-gradient-to-r ${action.gradient} px-5 py-4 text-left text-white shadow-[0_24px_50px_-30px_rgba(59,130,246,0.6)] transition hover:-translate-y-0.5`}
                 >
                   <div>
                     <p className="text-sm font-semibold">{action.label}</p>
@@ -71,26 +71,26 @@ const CollegeAdminOverview = () => {
               ))}
             </div>
           </div>
-          <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-inner shadow-blue-500/10 dark:border-slate-800/70 dark:bg-slate-900/80">
-            <p className="text-xs uppercase tracking-[0.4em] text-slate-400">Campus snapshot</p>
+          <div className="rounded-3xl border border-blue-100/70 bg-white/80 p-6 shadow-inner shadow-blue-500/15 dark:border-slate-800/70 dark:bg-slate-900/80">
+            <p className="text-xs uppercase tracking-[0.4em] text-blue-400 dark:text-blue-300">Campus snapshot</p>
             <div className="mt-4 space-y-3 text-sm">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-2xl border border-blue-100/50 bg-white/70 px-4 py-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/70">
                 <span className="text-slate-600 dark:text-slate-300">Representatives</span>
                 <span className="font-semibold text-slate-900 dark:text-white">{stats.representatives}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-2xl border border-blue-100/50 bg-white/70 px-4 py-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/70">
                 <span className="text-slate-600 dark:text-slate-300">Pending approvals</span>
                 <span className="font-semibold text-slate-900 dark:text-white">{stats.pendingRepresentatives}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-2xl border border-blue-100/50 bg-white/70 px-4 py-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/70">
                 <span className="text-slate-600 dark:text-slate-300">Wall posts</span>
                 <span className="font-semibold text-slate-900 dark:text-white">{stats.posts}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-2xl border border-blue-100/50 bg-white/70 px-4 py-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/70">
                 <span className="text-slate-600 dark:text-slate-300">Events</span>
                 <span className="font-semibold text-slate-900 dark:text-white">{stats.events}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-2xl border border-blue-100/50 bg-white/70 px-4 py-3 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/70">
                 <span className="text-slate-600 dark:text-slate-300">Collaborations</span>
                 <span className="font-semibold text-slate-900 dark:text-white">{stats.collaborations}</span>
               </div>
@@ -99,16 +99,16 @@ const CollegeAdminOverview = () => {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <article className="rounded-[28px] border border-slate-200/70 bg-white/95 p-6 shadow-lg shadow-blue-500/10 dark:border-slate-800/70 dark:bg-slate-900/80">
-          <div className="flex items-center justify-between gap-3">
+      <section className="grid gap-6 md:gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <article className="rounded-[32px] border border-blue-100/70 bg-white/85 p-6 shadow-[0_28px_60px_-38px_rgba(59,130,246,0.6)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/80">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-500 dark:text-blue-300">Upcoming events</p>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Your next launchpad</h3>
             </div>
             <button
               type="button"
-              className="rounded-full border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:border-blue-400 hover:bg-blue-50/70 dark:border-blue-500/30 dark:text-blue-200"
+              className="self-start rounded-full border border-blue-200/70 bg-white/80 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-white dark:border-blue-500/30 dark:bg-transparent dark:text-blue-200"
             >
               Manage events
             </button>
@@ -120,7 +120,7 @@ const CollegeAdminOverview = () => {
           ) : (
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {upcomingEvents.slice(0, 4).map((event) => (
-                <div key={event.id} className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-inner shadow-blue-500/10 dark:border-slate-800 dark:bg-slate-900/70">
+                <div key={event.id} className="flex flex-col gap-3 rounded-3xl border border-blue-100/70 bg-white/85 p-4 shadow-inner shadow-blue-500/15 transition hover:border-blue-200 dark:border-slate-800 dark:bg-slate-900/70">
                   <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-blue-500 dark:text-blue-300">
                     <span>{event.type}</span>
                     <span>{event.date}</span>
@@ -140,31 +140,31 @@ const CollegeAdminOverview = () => {
           )}
         </article>
 
-        <article className="rounded-[28px] border border-slate-200/70 bg-white/95 p-6 shadow-lg shadow-blue-500/10 dark:border-slate-800/70 dark:bg-slate-900/80">
-          <div className="flex items-center justify-between gap-3">
+        <article className="rounded-[32px] border border-blue-100/70 bg-white/85 p-6 shadow-[0_28px_60px_-38px_rgba(129,140,248,0.6)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/80">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-500 dark:text-purple-300">Student interactions</p>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Engagement pulse</h3>
             </div>
             <button
               type="button"
-              className="rounded-full border border-purple-200 px-3 py-1 text-xs font-semibold text-purple-600 transition hover:border-purple-400 hover:bg-purple-50/70 dark:border-purple-600/40 dark:text-purple-200"
+              className="self-start rounded-full border border-purple-200/70 bg-white/80 px-3 py-1 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-white dark:border-purple-600/40 dark:bg-transparent dark:text-purple-200"
             >
               View analytics
             </button>
           </div>
           <div className="mt-4 grid gap-4">
-            <div className="rounded-3xl border border-purple-200/60 bg-purple-50/80 p-5 shadow-inner shadow-purple-500/10 dark:border-purple-800/60 dark:bg-purple-900/30">
+            <div className="rounded-3xl border border-purple-200/70 bg-purple-50/80 p-5 shadow-inner shadow-purple-500/20 dark:border-purple-800/60 dark:bg-purple-900/30">
               <div className="text-xs font-semibold uppercase tracking-wide text-purple-600 dark:text-purple-200">Total reactions</div>
               <p className="mt-2 text-2xl font-semibold text-purple-700 dark:text-purple-100">{activeInteractionsSummary.reactions.toLocaleString()}</p>
               <p className="text-xs text-purple-600/80 dark:text-purple-200/80">Across wall posts and events this month.</p>
             </div>
-            <div className="rounded-3xl border border-blue-200/60 bg-blue-50/80 p-5 shadow-inner shadow-blue-500/10 dark:border-blue-800/60 dark:bg-blue-900/30">
+            <div className="rounded-3xl border border-blue-200/70 bg-blue-50/80 p-5 shadow-inner shadow-blue-500/20 dark:border-blue-800/60 dark:bg-blue-900/30">
               <div className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-200">Comments</div>
               <p className="mt-2 text-2xl font-semibold text-blue-700 dark:text-blue-100">{activeInteractionsSummary.comments.toLocaleString()}</p>
               <p className="text-xs text-blue-600/80 dark:text-blue-200/80">Student conversations across notices.</p>
             </div>
-            <div className="rounded-3xl border border-emerald-200/60 bg-emerald-50/80 p-5 shadow-inner shadow-emerald-500/10 dark:border-emerald-800/60 dark:bg-emerald-900/30">
+            <div className="rounded-3xl border border-emerald-200/70 bg-emerald-50/80 p-5 shadow-inner shadow-emerald-500/20 dark:border-emerald-800/60 dark:bg-emerald-900/30">
               <div className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-200">Trending post</div>
               <p className="mt-2 text-sm font-semibold text-emerald-700 dark:text-emerald-100">{activeInteractionsSummary.trendingPost}</p>
               <p className="text-xs text-emerald-600/80 dark:text-emerald-200/80">Plan a follow-up update to maintain momentum.</p>
@@ -173,15 +173,15 @@ const CollegeAdminOverview = () => {
         </article>
       </section>
 
-      <section className="space-y-4 rounded-[28px] border border-slate-200/70 bg-white/95 p-6 shadow-lg shadow-blue-500/10 dark:border-slate-800/70 dark:bg-slate-900/80">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <section className="space-y-4 rounded-[32px] border border-blue-100/70 bg-white/85 p-6 shadow-[0_30px_70px_-40px_rgba(59,130,246,0.55)] backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/80">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Quick actions</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-400 dark:text-blue-300">Quick actions</p>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Administrative shortcuts</h3>
           </div>
           <button
             type="button"
-            className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:bg-slate-100/70 dark:border-slate-700 dark:text-slate-200"
+            className="self-start rounded-full border border-blue-200/70 bg-white/80 px-3 py-1 text-xs font-semibold text-blue-600 transition hover:border-blue-300 hover:bg-white dark:border-blue-500/40 dark:bg-transparent dark:text-blue-200"
           >
             Customize shortcuts
           </button>
@@ -191,7 +191,7 @@ const CollegeAdminOverview = () => {
             <button
               key={card.id}
               type="button"
-              className={`rounded-3xl border border-slate-200 bg-gradient-to-br ${card.gradient} p-4 text-left text-sm text-white shadow-inner shadow-blue-500/10 transition hover:-translate-y-0.5 dark:border-slate-800/70`}
+              className={`rounded-3xl border border-transparent bg-gradient-to-br ${card.gradient} p-4 text-left text-sm text-white shadow-[0_24px_50px_-32px_rgba(59,130,246,0.7)] transition hover:-translate-y-0.5`}
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/25 text-white">
                 <Icon name={card.icon} className="h-4 w-4" />

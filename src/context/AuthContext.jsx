@@ -1,5 +1,17 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { AuthContext } from './AuthContextInstance'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+
+// Create the context with default values
+const AuthContext = createContext({
+  user: null,
+  loading: true,
+  error: null,
+  signIn: async () => {},
+  signOut: async () => {},
+  signUp: async () => {},
+  refreshUser: async () => {},
+  login: async () => {},
+  logout: async () => {}
+})
 
 const USER_STORAGE_KEY = 'mock_auth_users'
 const SESSION_STORAGE_KEY = 'mock_auth_session'
@@ -126,14 +138,15 @@ const buildUserObject = (userRecord) => {
   }
 }
 
-export function AuthProvider({ children }) {
+function AuthProvider({ children }) {
   const [users, setUsers] = useState(() => ensureDefaultUsers(readStoredJson(USER_STORAGE_KEY, [])))
-  const [user, setUser] = useState(() => {
-    const storedSession = readStoredJson(SESSION_STORAGE_KEY, null)
-    if (!storedSession) return null
-    const userRecord = matchUser(ensureDefaultUsers(readStoredJson(USER_STORAGE_KEY, [])), storedSession.email) ?? storedSession
-    return buildUserObject(userRecord)
-  })
+  const [user, setUser] = useState(null)
+  
+  // Set initial loading state to false
+  useEffect(() => {
+    // We're not auto-logging in anymore
+    setLoading(false)
+  }, [])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -262,3 +275,17 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   )
 }
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
+
+// Export the AuthProvider and useAuth hook
+export { AuthProvider }
+
+
+export default AuthContext
